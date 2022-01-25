@@ -1,0 +1,13 @@
+DNest5/main
+DNest5/output/dnest5.db
+DNest5/output/dnest5.db-shm
+DNest5/output/dnest5.db-wal
+DNest5/output/figure1.pdf
+DNest5/output/figure2.pdf
+DNest5/output/figure3.pdf
+DNest5/output/posterior.csv
+DNest5/output/posterior.db
+DNest5/output/posterior.db-shm
+DNest5/output/posterior.db-wal
+DNest5/output/results.yaml
+DNest5/postprocess
