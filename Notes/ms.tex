@@ -1,0 +1,50 @@
+\documentclass[a4paper, 12pt]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{dsfont}
+\usepackage[left=1.5cm, right=1.5cm, bottom=2cm, top=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{natbib}
+\newcommand{\given}{\,|\,}
+
+\title{Notes}
+\author{Brendon J. Brewer}
+\date{}
+
+\begin{document}
+\maketitle
+
+\abstract{}
+
+% Need this after the abstract
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{8pt}
+
+\section*{Unknown True Metallicities}
+Let $\{Z_i\}$ be the unknown true metallicities and let $\{z_i\}$ be the
+measured metallicities, with the reported errorbars $\{b_i\}$, such that
+\begin{align}
+z_i \given Z_i &\sim \textnormal{Normal}\left(z_i, b_i^2\right).
+\end{align}
+Let the other parameters be $\theta$ and the data be $D$. We seek the
+posterior
+\begin{align}
+p(\theta, \boldsymbol{Z} \given D) &\propto p(\theta, \boldsymbol{Z})
+                                            p(D \given \theta, \boldsymbol{Z}) \\
+    &= p(\theta)p(\boldsymbol{Z}) p(D \given \theta, \boldsymbol{Z}),
+\end{align}
+assuming that the true metallicities do not tell us anything about the other
+parameters. Then, we can marginalise out the true metallicities:
+\begin{align}
+p(\theta \given D)
+    &= \int p(\theta, \boldsymbol{Z} \given D) \, d\boldsymbol{Z} \\
+    &\propto \int p(\theta)p(\boldsymbol{Z}) p(D \given \theta, \boldsymbol{Z})
+               \, d\boldsymbol{Z} 
+\end{align}
+
+
+\end{document}
+
