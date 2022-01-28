@@ -18,6 +18,7 @@ class MyModel
 
         double sigma, A1, A2, phi1, phi2, L, s, M_crit;
         double errorbar_multiplier;
+        std::vector<double> true_zs;
 
         // Data
         static std::vector<double> xs, ys, zs, sig_zs, vs, sigmas;
@@ -59,12 +60,14 @@ MyModel::MyModel(RNG& rng)
     s = pow(10.0, 2.0*rng.randn());
     M_crit = -3.0 + 3.5*rng.rand();
     errorbar_multiplier = pow(10.0, 2.0*rng.randn()); // If < 1 it's 1
+    for(size_t i=0; i<zs.size(); ++i)
+        true_zs.emplace_back(sig_zs[i]*rng.randn());
 }
 
 double MyModel::perturb(RNG& rng)
 {
     double logh = 0.0;
-    int which = rng.rand_int(9);
+    int which = rng.rand_int(10);
     if(which == 0)
     {
         sigma = log10(sigma);
@@ -128,6 +131,13 @@ double MyModel::perturb(RNG& rng)
         logh += -0.5*pow(errorbar_multiplier/2.0, 2);
         errorbar_multiplier = pow(10.0, errorbar_multiplier);
     }
+    else if(which == 9)
+    {
+        int k = rng.rand_int(true_zs.size());
+        logh -= -0.5*pow((true_zs[k] - zs[k])/sig_zs[k], 2);
+        true_zs[k] += sig_zs[k]*rng.randh();
+        logh += -0.5*pow((true_zs[k] - zs[k])/sig_zs[k], 2);
+    }
 
     return logh;
 }
@@ -153,7 +163,7 @@ double MyModel::log_likelihood() const
     {
         r = sqrt(pow(xs[i], 2) + pow(ys[i], 2));
         var = pow(sigma*exp(-r/(s*L)), 2) + pow(sigmas[i]*multiplier, 2);
-        if(zs[i] < M_crit)
+        if(true_zs[i] < M_crit)
         {
             A = A1;
             phi = phi1;
