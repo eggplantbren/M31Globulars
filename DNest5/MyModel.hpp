@@ -61,7 +61,7 @@ MyModel::MyModel(RNG& rng)
     M_crit = -3.0 + 3.5*rng.rand();
     errorbar_multiplier = pow(10.0, 2.0*rng.randn()); // If < 1 it's 1
     for(size_t i=0; i<zs.size(); ++i)
-        true_zs.emplace_back(sig_zs[i]*rng.randn());
+        true_zs.emplace_back(zs[i] + sig_zs[i]*rng.randn());
 }
 
 double MyModel::perturb(RNG& rng)
