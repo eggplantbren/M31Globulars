@@ -20,7 +20,7 @@ class MyModel
         double errorbar_multiplier;
 
         // Data
-        static std::vector<double> xs, ys, metallicities, vs, sigmas;
+        static std::vector<double> xs, ys, zs, sig_zs, vs, sigmas;
 
     public:
         MyModel(RNG& rng);
@@ -39,7 +39,8 @@ class MyModel
 
 std::vector<double> MyModel::xs;
 std::vector<double> MyModel::ys;
-std::vector<double> MyModel::metallicities;
+std::vector<double> MyModel::zs;
+std::vector<double> MyModel::sig_zs;
 std::vector<double> MyModel::vs;
 std::vector<double> MyModel::sigmas;
 
@@ -152,7 +153,7 @@ double MyModel::log_likelihood() const
     {
         r = sqrt(pow(xs[i], 2) + pow(ys[i], 2));
         var = pow(sigma*exp(-r/(s*L)), 2) + pow(sigmas[i]*multiplier, 2);
-        if(metallicities[i] < M_crit)
+        if(zs[i] < M_crit)
         {
             A = A1;
             phi = phi1;
@@ -193,23 +194,22 @@ std::vector<char> MyModel::to_blob() const
 void MyModel::load_data()
 {
     std::fstream fin("data.txt", std::ios::in);
-    double x, y, m, v, sig;
+    double x, y, m, sig_z, v, sig;
     xs.clear();
     ys.clear();
-    metallicities.clear();
+    zs.clear();
+    sig_zs.clear();
     vs.clear();
     sigmas.clear();
 
-    while(fin >> x && fin >> y && fin >> m && fin >> v && fin >> sig)
+    while(fin >> x && fin >> y && fin >> m && fin >> sig_z && fin >> v && fin >> sig)
     {
-        if(m < -0.4)
-        {
-            xs.push_back(x);
-            ys.push_back(y);
-            metallicities.push_back(m);
-            vs.push_back(v);
-            sigmas.push_back(sig);
-        }
+        xs.push_back(x);
+        ys.push_back(y);
+        zs.push_back(m);
+        sig_zs.push_back(sig_z);
+        vs.push_back(v);
+        sigmas.push_back(sig);
     }
     std::cout << "Loaded " << xs.size() << " data points." << std::endl;
 

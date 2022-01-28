@@ -16,8 +16,8 @@ if __name__ == "__main__":
     samples = pd.read_csv("output/posterior.csv")
     data = np.loadtxt("data.txt")
 
-    colors = ["red" if v < 0.0 else "blue" for v in data[:,3]]
-    plt.scatter(data[:,0], data[:,1], s=30*np.abs(data[:,2]), marker="o",
+    colors = ["red" if v < 0.0 else "blue" for v in data[:,4]]
+    plt.scatter(data[:,0], data[:,1], s=0.1*np.abs(data[:,4]), marker="o",
                 alpha=0.3, color=colors)
     plt.xlim([-5, 5])
     plt.ylim([-5, 5])
