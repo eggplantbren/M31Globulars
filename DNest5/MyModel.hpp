@@ -59,7 +59,7 @@ MyModel::MyModel(RNG& rng)
     L = pow(10.0, 1.0 + 2.0*rng.randn());
     s = pow(10.0, 2.0*rng.randn());
     M_crit = -3.0 + 3.5*rng.rand();
-    errorbar_multiplier = pow(10.0, 2.0*rng.randn()); // If < 1 it's 1
+    errorbar_multiplier = rng.randn(); // If < 0.5 it's 1, otherwise pareto
     for(size_t i=0; i<zs.size(); ++i)
         true_zs.emplace_back(zs[i] + sig_zs[i]*rng.randn());
 }
@@ -125,11 +125,8 @@ double MyModel::perturb(RNG& rng)
     }
     else if(which == 8)
     {
-        errorbar_multiplier = log10(errorbar_multiplier);
-        logh -= -0.5*pow(errorbar_multiplier/2.0, 2);
-        errorbar_multiplier += 2.0*rng.randh();
-        logh += -0.5*pow(errorbar_multiplier/2.0, 2);
-        errorbar_multiplier = pow(10.0, errorbar_multiplier);
+        errorbar_multiplier += rng.randh();
+        wrap(errorbar_multiplier);
     }
     else if(which == 9)
     {
@@ -155,9 +152,14 @@ double MyModel::log_likelihood() const
 //  logL = sum(dnorm(newdata$V_M31, line, sd=sqrt(variance), log=TRUE))
 //  
 
+    // Mixture of delta(1) and pareto(xmin=1, alpha=1)
     double multiplier = 1.0;
-    if(errorbar_multiplier > 1.0)
-        multiplier = errorbar_multiplier;
+    if(errorbar_multiplier > 0.5)
+    {
+        double u = 2.0*(errorbar_multiplier - 0.5);
+        double e = -log(1.0 - u);
+        multiplier = exp(e);
+    }
 
     for(size_t i=0; i<xs.size(); ++i)
     {
