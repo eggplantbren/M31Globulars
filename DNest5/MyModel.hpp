@@ -185,6 +185,8 @@ double MyModel::log_likelihood() const
         var = pow(sigma*exp(-s*r/L), 2) + pow(sigmas[i]*multiplier, 2);
 
         mu = A*tanh((xs[i]*sin(phi) - ys[i]*cos(phi))/L);
+//        double theta = atan2(ys[i], xs[i]);
+//        mu = A*sin(theta - phi);
         logl += -0.5*log(2*M_PI*var) - 0.5*pow(vs[i] - mu, 2)/var;
     }
 
