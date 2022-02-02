@@ -16,7 +16,7 @@ class MyModel
 {
     private:
 
-        double sigma, A1, A2, phi1, phi2, L, s, M_crit;
+        double sigma, A1, A2, phi1, phi2, L, s1, s2, M_crit;
         double errorbar_multiplier;
         std::vector<double> true_zs;
 
@@ -47,7 +47,7 @@ std::vector<double> MyModel::sigmas;
 
 const ParameterNames MyModel::parameter_names
     = std::vector<std::string>{"sigma", "A1", "A2", "phi1", "phi2", "L",
-                               "s", "M_crit", "errorbar_multiplier"};
+                               "s1", "s2", "M_crit", "errorbar_multiplier"};
 
 MyModel::MyModel(RNG& rng)
 {
@@ -57,7 +57,8 @@ MyModel::MyModel(RNG& rng)
     phi1 = 2.0*M_PI*rng.rand();
     phi2 = 2.0*M_PI*rng.rand();
     L = pow(10.0, 1.0 + 2.0*rng.randn());
-    s = pow(10.0, 2.0*rng.randn());
+    s1 = 3.0*rng.randn();
+    s2 = 3.0*rng.randn();
     M_crit = -3.0 + 3.5*rng.rand();
     errorbar_multiplier = rng.randn(); // If < 0.5 it's 1, otherwise pareto
     for(size_t i=0; i<zs.size(); ++i)
@@ -67,7 +68,7 @@ MyModel::MyModel(RNG& rng)
 double MyModel::perturb(RNG& rng)
 {
     double logh = 0.0;
-    int which = rng.rand_int(10);
+    int which = rng.rand_int(11);
     if(which == 0)
     {
         sigma = log10(sigma);
@@ -112,23 +113,27 @@ double MyModel::perturb(RNG& rng)
     }
     else if(which == 6)
     {
-        s = log10(s);
-        logh -= -0.5*pow(s/2.0, 2);
-        s += 2.0*rng.randh();
-        logh += -0.5*pow(s/2.0, 2);
-        s = pow(10.0, s);
+        logh -= -0.5*pow(s1/3.0, 2);
+        s1 += 3.0*rng.randh();
+        logh += -0.5*pow(s1/3.0, 2);
     }
     else if(which == 7)
+    {
+        logh -= -0.5*pow(s2/3.0, 2);
+        s2 += 3.0*rng.randh();
+        logh += -0.5*pow(s2/3.0, 2);
+    }
+    else if(which == 8)
     {
         M_crit += 3.5*rng.randh();
         wrap(M_crit, -3.0, 0.5);
     }
-    else if(which == 8)
+    else if(which == 9)
     {
         errorbar_multiplier += rng.randh();
         wrap(errorbar_multiplier);
     }
-    else if(which == 9)
+    else if(which == 10)
     {
         int k = rng.rand_int(true_zs.size());
         logh -= -0.5*pow((true_zs[k] - zs[k])/sig_zs[k], 2);
@@ -161,20 +166,23 @@ double MyModel::log_likelihood() const
         multiplier = exp(e);
     }
 
+    double s;
     for(size_t i=0; i<xs.size(); ++i)
     {
-        r = sqrt(pow(xs[i], 2) + pow(ys[i], 2));
-        var = pow(sigma*exp(-r/(s*L)), 2) + pow(sigmas[i]*multiplier, 2);
         if(true_zs[i] < M_crit)
         {
             A = A1;
             phi = phi1;
+            s = s1;
         }
         else
         {
             A = A2;
             phi = phi2;
+            s = s2;
         }
+        r = sqrt(pow(xs[i], 2) + pow(ys[i], 2));
+        var = pow(sigma*exp(-s*r/L), 2) + pow(sigmas[i]*multiplier, 2);
 
         mu = A*tanh((xs[i]*sin(phi) - ys[i]*cos(phi))/L);
         logl += -0.5*log(2*M_PI*var) - 0.5*pow(vs[i] - mu, 2)/var;
@@ -192,7 +200,8 @@ std::vector<char> MyModel::to_blob() const
     ss.write(reinterpret_cast<const char*>(&phi1), sizeof(double));
     ss.write(reinterpret_cast<const char*>(&phi2), sizeof(double));
     ss.write(reinterpret_cast<const char*>(&L), sizeof(double));
-    ss.write(reinterpret_cast<const char*>(&s), sizeof(double));
+    ss.write(reinterpret_cast<const char*>(&s1), sizeof(double));
+    ss.write(reinterpret_cast<const char*>(&s2), sizeof(double));
     ss.write(reinterpret_cast<const char*>(&M_crit), sizeof(double));
     ss.write(reinterpret_cast<const char*>(&errorbar_multiplier), sizeof(double));
 
@@ -240,7 +249,8 @@ void MyModel::from_blob(const std::vector<char>& blob)
     ss.read(reinterpret_cast<char*>(&phi1), sizeof(double));
     ss.read(reinterpret_cast<char*>(&phi2), sizeof(double));
     ss.read(reinterpret_cast<char*>(&L), sizeof(double));
-    ss.read(reinterpret_cast<char*>(&s), sizeof(double));
+    ss.read(reinterpret_cast<char*>(&s1), sizeof(double));
+    ss.read(reinterpret_cast<char*>(&s2), sizeof(double));
     ss.read(reinterpret_cast<char*>(&M_crit), sizeof(double));
     ss.read(reinterpret_cast<char*>(&errorbar_multiplier), sizeof(double));
 }
@@ -254,7 +264,8 @@ std::string MyModel::to_string() const
     ss << phi1 << ',';
     ss << phi2 << ',';
     ss << L << ',';
-    ss << s << ',';
+    ss << s1 << ',';
+    ss << s2 << ',';
     ss << M_crit << ',';
     ss << errorbar_multiplier;
     return ss.str();
