@@ -14,7 +14,7 @@ using DNest5::ParameterNames, Tools::RNG, Tools::wrap;
 class MyModel
 {
     private:
-        double A, phi, dispersion;
+        double A1, A2, phi1, phi2, dispersion1, dispersion2, z_crit;
 
         // Data
         static std::vector<double> xs, ys, zs, sig_zs, vs, sigmas;
@@ -34,7 +34,8 @@ class MyModel
 /* Implementations follow */
 
 ParameterNames MyModel::parameter_names
-    = std::vector<std::string>{"A", "phi", "dispersion"};
+    = std::vector<std::string>{"A1", "A2", "phi1", "phi2",
+                                "dispersion1", "dispersion2", "z_crit"};
 
 std::vector<double> MyModel::xs;
 std::vector<double> MyModel::ys;
@@ -44,31 +45,55 @@ std::vector<double> MyModel::vs;
 std::vector<double> MyModel::sigmas;
 
 inline MyModel::MyModel(RNG& rng)
-:A(1000.0*rng.rand())
-,phi(2*M_PI*rng.rand())
-,dispersion(1000.0*rng.rand())
+:A1(1000.0*rng.rand())
+,A2(1000.0*rng.rand())
+,phi1(2*M_PI*rng.rand())
+,phi2(2*M_PI*rng.rand())
+,dispersion1(1000.0*rng.rand())
+,dispersion2(1000.0*rng.rand())
+,z_crit(-3.0*rng.rand())
 {
 
 }
 
 inline double MyModel::perturb(RNG& rng)
 {
-    int which = rng.rand_int(3);
+    int which = rng.rand_int(7);
 
     if(which == 0)
     {
-        A += 1000.0*rng.randh();
-        wrap(A, 0.0, 1000.0);
+        A1 += 1000.0*rng.randh();
+        wrap(A1, 0.0, 1000.0);
     }
     else if(which == 1)
     {
-        phi += 2*M_PI*rng.randh();
-        wrap(phi, 0.0, 2*M_PI);
+        A2 += 1000.0*rng.randh();
+        wrap(A2, 0.0, 1000.0);
+    }
+    else if(which == 2)
+    {
+        phi1 += 2*M_PI*rng.randh();
+        wrap(phi1, 0.0, 2*M_PI);
+    }
+    else if(which == 3)
+    {
+        phi2 += 2*M_PI*rng.randh();
+        wrap(phi2, 0.0, 2*M_PI);
+    }
+    else if(which == 4)
+    {
+        dispersion1 += 1000.0*rng.randh();
+        wrap(dispersion1, 0.0, 1000.0);
+    }
+    else if(which == 5)
+    {
+        dispersion2 += 1000.0*rng.randh();
+        wrap(dispersion2, 0.0, 1000.0);
     }
     else
     {
-        dispersion += 1000.0*rng.randh();
-        wrap(dispersion, 0.0, 1000.0);
+        z_crit += 3.0*rng.randh();
+        wrap(z_crit, -3.0, 0.0);
     }
 
     return 0.0;
@@ -78,9 +103,23 @@ inline double MyModel::log_likelihood() const
 {
     double logl = 0.0;
 
+    double A, phi, dispersion;
     double theta, mu, var;
     for(size_t i=0; i<xs.size(); ++i)
     {
+        if(zs[i] < z_crit)
+        {
+            A = A1;
+            phi = phi1;
+            dispersion = dispersion1;
+        }
+        else
+        {
+            A = A2;
+            phi = phi2;
+            dispersion = dispersion2;
+        }
+
         theta = atan2(ys[i], xs[i]);
         mu = A*sin(theta - phi);
         var = pow(dispersion, 2) + pow(sigmas[i], 2);
@@ -92,9 +131,9 @@ inline double MyModel::log_likelihood() const
 
 inline std::vector<char> MyModel::to_blob() const
 {
-    std::vector<char> result(3*sizeof(double));
+    std::vector<char> result(7*sizeof(double));
     auto pos = &result[0];
-    for(double value: {A, phi, dispersion})
+    for(double value: {A1, A2, phi1, phi2, dispersion1, dispersion2, z_crit})
     {
         std::memcpy(pos, &value, sizeof(value));
         pos += sizeof(value);
@@ -105,7 +144,7 @@ inline std::vector<char> MyModel::to_blob() const
 inline void MyModel::from_blob(const std::vector<char>& blob)
 {
     auto pos = &blob[0];
-    for(double* value: {&A, &phi, &dispersion})
+    for(double* value: {&A1, &A2, &phi1, &phi2, &dispersion1, &dispersion2, &z_crit})
     {
         std::memcpy(value, pos, sizeof(double));
         pos += sizeof(double);
@@ -115,7 +154,7 @@ inline void MyModel::from_blob(const std::vector<char>& blob)
 
 inline std::string MyModel::to_string() const
 {
-    return Tools::render(std::vector<double>{A, phi, dispersion}, ",");
+    return Tools::render(std::vector<double>{A1, A2, phi1, phi2, dispersion1, dispersion2, z_crit}, ",");
 }
 
 
