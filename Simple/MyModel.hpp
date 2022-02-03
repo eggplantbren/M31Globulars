@@ -9,7 +9,7 @@
 namespace DNest5_Template
 {
 
-using DNest5::ParameterNames, Tools::RNG;
+using DNest5::ParameterNames, Tools::RNG, Tools::wrap;
 
 class MyModel
 {
@@ -77,6 +77,16 @@ inline double MyModel::perturb(RNG& rng)
 inline double MyModel::log_likelihood() const
 {
     double logl = 0.0;
+
+    double theta, mu, var;
+    for(size_t i=0; i<xs.size(); ++i)
+    {
+        theta = atan2(ys[i], xs[i]);
+        mu = A*sin(theta - phi);
+        var = pow(dispersion, 2) + pow(sigmas[i], 2);
+        logl += -0.5*log(2*M_PI*var) - 0.5*pow(vs[i] - mu, 2)/var;
+    }
+
     return logl;
 }
 

@@ -15,7 +15,7 @@ int main()
 //    auto blob = t.to_blob();
 //    t.from_blob(blob);
 //    std::cout << t.to_string() << std::endl;
-
+    DNest5_Template::ModelType::load_data();
     DNest5::clear_output_dir();
     Sampler<DNest5_Template::ModelType> sampler(Options("options.yaml"));
     sampler.run();
