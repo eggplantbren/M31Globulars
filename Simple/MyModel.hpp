@@ -45,13 +45,13 @@ std::vector<double> MyModel::vs;
 std::vector<double> MyModel::sigmas;
 
 inline MyModel::MyModel(RNG& rng)
-:A1(1000.0*rng.rand())
-,A2(1000.0*rng.rand())
+:A1(800.0*rng.rand())
+,A2(800.0*rng.rand())
 ,phi1(2*M_PI*rng.rand())
 ,phi2(2*M_PI*rng.rand())
-,dispersion1(1000.0*rng.rand())
-,dispersion2(1000.0*rng.rand())
-,z_crit(-3.0*rng.rand())
+,dispersion1(400.0*rng.rand())
+,dispersion2(400.0*rng.rand())
+,z_crit(-3.0 + 2.0*rng.rand())
 {
 
 }
@@ -62,13 +62,13 @@ inline double MyModel::perturb(RNG& rng)
 
     if(which == 0)
     {
-        A1 += 1000.0*rng.randh();
-        wrap(A1, 0.0, 1000.0);
+        A1 += 800.0*rng.randh();
+        wrap(A1, 0.0, 800.0);
     }
     else if(which == 1)
     {
-        A2 += 1000.0*rng.randh();
-        wrap(A2, 0.0, 1000.0);
+        A2 += 800.0*rng.randh();
+        wrap(A2, 0.0, 800.0);
     }
     else if(which == 2)
     {
@@ -82,18 +82,18 @@ inline double MyModel::perturb(RNG& rng)
     }
     else if(which == 4)
     {
-        dispersion1 += 1000.0*rng.randh();
-        wrap(dispersion1, 0.0, 1000.0);
+        dispersion1 += 400.0*rng.randh();
+        wrap(dispersion1, 0.0, 400.0);
     }
     else if(which == 5)
     {
-        dispersion2 += 1000.0*rng.randh();
-        wrap(dispersion2, 0.0, 1000.0);
+        dispersion2 += 400.0*rng.randh();
+        wrap(dispersion2, 0.0, 400.0);
     }
     else
     {
-        z_crit += 3.0*rng.randh();
-        wrap(z_crit, -3.0, 0.0);
+        z_crit += 2.0*rng.randh();
+        wrap(z_crit, -3.0, -1.0);
     }
 
     return 0.0;
