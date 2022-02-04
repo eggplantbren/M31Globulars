@@ -11,3 +11,8 @@ if __name__ == "__main__":
     import showresults as sr
     sr.standard_results(sys.argv)
 
+    import pandas as pd
+    output = pd.read_csv("output/posterior.csv")
+    import corner
+    corner.corner(output, labels=output.columns)
+    plt.show()
