@@ -155,7 +155,7 @@ inline std::vector<char> MyModel::to_blob() const
 {
     std::vector<char> result(9*sizeof(double));
     auto pos = &result[0];
-    for(double value: {A1, A2, phi1, phi2, L1, L2, dispersion1, dispersion2})
+    for(double value: {A1, A2, phi1, phi2, L1, L2, dispersion1, dispersion2, z_crit})
     {
         std::memcpy(pos, &value, sizeof(value));
         pos += sizeof(value);
