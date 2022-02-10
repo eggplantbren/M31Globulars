@@ -47,8 +47,8 @@ std::vector<double> MyModel::sigmas;
 inline MyModel::MyModel(RNG& rng)
 :A1(800.0*rng.rand())
 ,A2(800.0*rng.rand())
-,phi1(2*M_PI*rng.rand())
-,phi2(2*M_PI*rng.rand())
+,phi1(-M_PI + 2*M_PI*rng.rand())
+,phi2(-M_PI + 2*M_PI*rng.rand())
 ,L1(2.0*rng.rand())
 ,L2(2.0*rng.rand())
 ,dispersion1(400.0*rng.rand())
@@ -75,12 +75,12 @@ inline double MyModel::perturb(RNG& rng)
     else if(which == 2)
     {
         phi1 += 2*M_PI*rng.randh();
-        wrap(phi1, 0.0, 2*M_PI);
+        wrap(phi1, -M_PI, M_PI);
     }
     else if(which == 3)
     {
         phi2 += 2*M_PI*rng.randh();
-        wrap(phi2, 0.0, 2*M_PI);
+        wrap(phi2, -M_PI, M_PI);
     }
     else if(which == 4)
     {
