@@ -14,7 +14,8 @@ using DNest5::ParameterNames, Tools::RNG, Tools::wrap;
 class MyModel
 {
     private:
-        double A1, A2, phi1, phi2, L1, L2, dispersion1, dispersion2, z_crit;
+        double A1, A2, phi1, phi2, L1, L2, dispersion1, dispersion2,
+                s1, s2, z_crit;
 
         // Data
         static std::vector<double> xs, ys, zs, sig_zs, vs, sigmas;
@@ -35,7 +36,8 @@ class MyModel
 
 ParameterNames MyModel::parameter_names
     = std::vector<std::string>{"A1", "A2", "phi1", "phi2", "L1", "L2",
-                                "dispersion1", "dispersion2", "z_crit"};
+                                "dispersion1", "dispersion2",
+                                "s1", "s2", "z_crit"};
 
 std::vector<double> MyModel::xs;
 std::vector<double> MyModel::ys;
@@ -53,6 +55,8 @@ inline MyModel::MyModel(RNG& rng)
 ,L2(2.0*rng.rand())
 ,dispersion1(400.0*rng.rand())
 ,dispersion2(400.0*rng.rand())
+,s1(-4.0 + 8.0*rng.rand())
+,s2(-4.0 + 8.0*rng.rand())
 ,z_crit(-3.0 + 2.0*rng.rand())
 {
 
@@ -60,7 +64,7 @@ inline MyModel::MyModel(RNG& rng)
 
 inline double MyModel::perturb(RNG& rng)
 {
-    int which = rng.rand_int(9);
+    int which = rng.rand_int(11);
 
     if(which == 0)
     {
@@ -102,6 +106,16 @@ inline double MyModel::perturb(RNG& rng)
         dispersion2 += 400.0*rng.randh();
         wrap(dispersion2, 0.0, 400.0);
     }
+    else if(which == 8)
+    {
+        s1 += 8.0*rng.randh();
+        wrap(s1, -4.0, 4.0);
+    }
+    else if(which == 9)
+    {
+        s2 += 8.0*rng.randh();
+        wrap(s2, -4.0, 4.0);
+    }
     else
     {
         z_crit += 2.0*rng.randh();
@@ -115,8 +129,8 @@ inline double MyModel::log_likelihood() const
 {
     double logl = 0.0;
 
-    double A, phi, L, dispersion;
-    double theta, mu, var;
+    double A, phi, L, dispersion, s;
+    double r, theta, mu, var;
     for(size_t i=0; i<xs.size(); ++i)
     {
         if(zs[i] < z_crit)
@@ -125,6 +139,7 @@ inline double MyModel::log_likelihood() const
             phi = phi1;
             L = L1;
             dispersion = dispersion1;
+            s = s1;
         }
         else
         {
@@ -132,7 +147,9 @@ inline double MyModel::log_likelihood() const
             phi = phi2;
             L = L2;
             dispersion = dispersion2;
+            s = s2;
         }
+        r = sqrt(xs[i]*xs[i] + ys[i]*ys[i]);
 
         // KV
         theta = atan2(ys[i], xs[i]);
@@ -144,7 +161,7 @@ inline double MyModel::log_likelihood() const
         // KF
 //        mu = A*tanh((xs[i]*sin(phi) - ys[i]*cos(phi))/L);
 
-        var = pow(dispersion, 2) + pow(sigmas[i], 2);
+        var = pow(dispersion*exp(s*r), 2) + pow(sigmas[i], 2);
         logl += -0.5*log(2*M_PI*var) - 0.5*pow(vs[i] - mu, 2)/var;
     }
 
@@ -153,9 +170,10 @@ inline double MyModel::log_likelihood() const
 
 inline std::vector<char> MyModel::to_blob() const
 {
-    std::vector<char> result(9*sizeof(double));
+    std::vector<char> result(11*sizeof(double));
     auto pos = &result[0];
-    for(double value: {A1, A2, phi1, phi2, L1, L2, dispersion1, dispersion2, z_crit})
+    for(double value: {A1, A2, phi1, phi2, L1, L2, dispersion1, dispersion2,
+                        s1, s2, z_crit})
     {
         std::memcpy(pos, &value, sizeof(value));
         pos += sizeof(value);
@@ -166,7 +184,7 @@ inline std::vector<char> MyModel::to_blob() const
 inline void MyModel::from_blob(const std::vector<char>& blob)
 {
     auto pos = &blob[0];
-    for(double* value: {&A1, &A2, &phi1, &phi2, &L1, &L2, &dispersion1, &dispersion2, &z_crit})
+    for(double* value: {&A1, &A2, &phi1, &phi2, &L1, &L2, &dispersion1, &dispersion2, &s1, &s2, &z_crit})
     {
         std::memcpy(value, pos, sizeof(double));
         pos += sizeof(double);
@@ -176,7 +194,7 @@ inline void MyModel::from_blob(const std::vector<char>& blob)
 
 inline std::string MyModel::to_string() const
 {
-    return Tools::render(std::vector<double>{A1, A2, phi1, phi2, L1, L2, dispersion1, dispersion2, z_crit}, ",");
+    return Tools::render(std::vector<double>{A1, A2, phi1, phi2, L1, L2, dispersion1, dispersion2, s1, s2, z_crit}, ",");
 }
 
 
