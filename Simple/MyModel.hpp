@@ -70,6 +70,7 @@ inline MyModel::MyModel(RNG& rng)
 inline double MyModel::perturb(RNG& rng)
 {
     int which = rng.rand_int(11);
+    double logh = 0.0;
 
     if(which == 0)
     {
@@ -121,13 +122,24 @@ inline double MyModel::perturb(RNG& rng)
         s2 += 8.0*rng.randh();
         wrap(s2, -4.0, 4.0);
     }
-    else
+    else if(which == 10)
     {
         z_crit += 2.0*rng.randh();
         wrap(z_crit, -3.0, -1.0);
     }
+    else
+    {
+        int reps = 1 + rng.rand_int(10);
+        for(int i=0; i<reps; ++i)
+        {
+            int k = rng.rand_int(true_zs.size());
+            logh -= -0.5*pow((true_zs[k] - zs[k])/sig_zs[k], 2);
+            true_zs[k] += sig_zs[k]*rng.randn();
+            logh += -0.5*pow((true_zs[k] - zs[k])/sig_zs[k], 2);
+        }
+    }
 
-    return 0.0;
+    return logh;
 }
 
 inline double MyModel::log_likelihood() const
