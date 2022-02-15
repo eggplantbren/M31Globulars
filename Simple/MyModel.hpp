@@ -16,6 +16,7 @@ class MyModel
     private:
         double A1, A2, phi1, phi2, L1, L2, dispersion1, dispersion2,
                 s1, s2, z_crit;
+        std::vector<double> true_zs;
 
         // Data
         static std::vector<double> xs, ys, zs, sig_zs, vs, sigmas;
@@ -58,8 +59,12 @@ inline MyModel::MyModel(RNG& rng)
 ,s1(-4.0 + 8.0*rng.rand())
 ,s2(-4.0 + 8.0*rng.rand())
 ,z_crit(-3.0 + 2.0*rng.rand())
+,true_zs(sig_zs.size())
 {
-
+    for(size_t i=0; i<true_zs.size(); ++i)
+    {
+        true_zs[i] = zs[i] + sig_zs[i]*rng.randn();
+    }
 }
 
 inline double MyModel::perturb(RNG& rng)
