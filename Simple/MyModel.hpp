@@ -134,7 +134,7 @@ inline double MyModel::perturb(RNG& rng)
         {
             int k = rng.rand_int(true_zs.size());
             logh -= -0.5*pow((true_zs[k] - zs[k])/sig_zs[k], 2);
-            true_zs[k] += sig_zs[k]*rng.randn();
+            true_zs[k] += sig_zs[k]*rng.randh();
             logh += -0.5*pow((true_zs[k] - zs[k])/sig_zs[k], 2);
         }
     }
@@ -150,7 +150,7 @@ inline double MyModel::log_likelihood() const
     double r, theta, mu, var;
     for(size_t i=0; i<xs.size(); ++i)
     {
-        if(zs[i] < z_crit)
+        if(true_zs[i] < z_crit)
         {
             A = A1;
             phi = phi1;
