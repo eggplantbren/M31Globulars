@@ -69,7 +69,7 @@ inline MyModel::MyModel(RNG& rng)
 
 inline double MyModel::perturb(RNG& rng)
 {
-    int which = rng.rand_int(11);
+    int which = rng.rand_int(12);
     double logh = 0.0;
 
     if(which == 0)
