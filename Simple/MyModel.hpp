@@ -35,6 +35,11 @@ class MyModel
 
 /* Implementations follow */
 
+double pnorm(double x)
+{
+    return (erf(x/sqrt(2.0)) + 1.0)/2.0;
+}
+
 ParameterNames MyModel::parameter_names
     = std::vector<std::string>{"A1", "A2", "phi1", "phi2", "L1", "L2",
                                 "dispersion1", "dispersion2",
@@ -69,7 +74,7 @@ inline MyModel::MyModel(RNG& rng)
 
 inline double MyModel::perturb(RNG& rng)
 {
-    int which = rng.rand_int(11);
+    int which = rng.rand_int(10);
     double logh = 0.0;
 
     if(which == 0)
@@ -122,21 +127,10 @@ inline double MyModel::perturb(RNG& rng)
         s2 += 8.0*rng.randh();
         wrap(s2, -4.0, 4.0);
     }
-    else if(which == 10)
+    else
     {
         z_crit += 2.0*rng.randh();
         wrap(z_crit, -3.0, -1.0);
-    }
-    else
-    {
-        int reps = 1 + rng.rand_int(10);
-        for(int i=0; i<reps; ++i)
-        {
-            int k = rng.rand_int(true_zs.size());
-            logh -= -0.5*pow((true_zs[k] - zs[k])/sig_zs[k], 2);
-            true_zs[k] += sig_zs[k]*rng.randh();
-            logh += -0.5*pow((true_zs[k] - zs[k])/sig_zs[k], 2);
-        }
     }
 
     return logh;
@@ -148,38 +142,51 @@ inline double MyModel::log_likelihood() const
 
     double A, phi, L, dispersion, s;
     double r, theta, mu, var;
+    double logl_term;
     for(size_t i=0; i<xs.size(); ++i)
     {
-        if(true_zs[i] < z_crit)
+        logl_term = -1E300;
+
+        for(int j=0; j<2; ++j)
         {
-            A = A1;
-            phi = phi1;
-            L = L1;
-            dispersion = dispersion1;
-            s = s1;
+            if(j == 0)
+            {
+                A = A1;
+                phi = phi1;
+                L = L1;
+                dispersion = dispersion1;
+                s = s1;
+            }
+            else
+            {
+                A = A2;
+                phi = phi2;
+                L = L2;
+                dispersion = dispersion2;
+                s = s2;
+            }
+            r = sqrt(xs[i]*xs[i] + ys[i]*ys[i]);
+
+            // Weighting thing
+            double w = pnorm((z_crit - zs[i])/sig_zs[i]);
+            double K = (j==0)?(w):(1.0-w);
+
+            // KV
+            theta = atan2(ys[i], xs[i]);
+            mu = A*sin(theta - phi);
+
+            // KS
+    //        mu = A*(xs[i]*sin(phi) - ys[i]*cos(phi));
+
+            // KF
+    //        mu = A*tanh((xs[i]*sin(phi) - ys[i]*cos(phi))/L);
+
+            var = pow(dispersion*exp(s*r), 2) + pow(sigmas[i], 2);
+            logl_term = Tools::logsumexp({logl_term, 
+                            log(K)-0.5*log(2*M_PI*var) - 0.5*pow(vs[i] - mu, 2)/var});
         }
-        else
-        {
-            A = A2;
-            phi = phi2;
-            L = L2;
-            dispersion = dispersion2;
-            s = s2;
-        }
-        r = sqrt(xs[i]*xs[i] + ys[i]*ys[i]);
 
-        // KV
-        theta = atan2(ys[i], xs[i]);
-        mu = A*sin(theta - phi);
-
-        // KS
-//        mu = A*(xs[i]*sin(phi) - ys[i]*cos(phi));
-
-        // KF
-//        mu = A*tanh((xs[i]*sin(phi) - ys[i]*cos(phi))/L);
-
-        var = pow(dispersion*exp(s*r), 2) + pow(sigmas[i], 2);
-        logl += -0.5*log(2*M_PI*var) - 0.5*pow(vs[i] - mu, 2)/var;
+        logl += logl_term;
     }
 
     return logl;

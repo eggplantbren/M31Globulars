@@ -1,0 +1,3 @@
+[submodule "Simple/Tools"]
+	path = Simple/Tools
+	url = https://github.com/eggplantbren/Tools
