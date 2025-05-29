@@ -81,18 +81,18 @@ int MyModel::choose_component(double true_metallicity,
         return 1;
 
 
-    // Model 2.2
-    if(reported_metallicity < 1000)
-    {
-        if(true_metallicity < m_crit)
-            return 0;
-        else
-            return 1;
-    }
-    else if(std::abs(reported_metallicity - 1001) <= 1E-6)
-        return 1;
-    else
-        return 0;
+//    // Model 2.2
+//    if(reported_metallicity < 1000)
+//    {
+//        if(true_metallicity < m_crit)
+//            return 0;
+//        else
+//            return 1;
+//    }
+//    else if(std::abs(reported_metallicity - 1001) <= 1E-6)
+//        return 1;
+//    else
+//        return 0;
 
     // Model 3
 //    if(reported_metallicity < 1000)
@@ -103,7 +103,7 @@ int MyModel::choose_component(double true_metallicity,
 //            return 1;
 //    }
 //    else if(std::abs(reported_metallicity - 1001) <= 1E-6)
-//        return 1;
+//        return 0;
 //    else
 //        return 2;
 
