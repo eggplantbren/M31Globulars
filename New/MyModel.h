@@ -19,6 +19,9 @@ class MyModel
         // Amplitude, orientation angle, and velocity dispersion per component
         std::vector<double> A, phi, sigma;
 
+        // Choose the appropriate component
+        int choose_component(double metallicity) const;
+
 
     public:
         // Constructor only gives size of params

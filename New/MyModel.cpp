@@ -46,9 +46,26 @@ double MyModel::perturb(DNest4::RNG& rng)
     return logH;
 }
 
+int MyModel::choose_component(double metallicity) const
+{
+    if(metallicity > -1.0)
+        return 1;
+    else
+        return 0;
+}
+
 double MyModel::log_likelihood() const
 {
     double logL = 0.0;
+    for(size_t i=0; i<data.x.size(); ++i)
+    {
+        int component = choose_component(data.metallicity[i]);
+        double mu = A[component]*sin(data.theta[i] - phi[component]);
+        double var = pow(sigma[component], 2) + pow(data.verr[i], 2);
+
+        logL += -0.5*log(2.0*M_PI*var) - 0.5*pow(data.v[i] - mu, 2)/var;
+    }
+
     return logL;
 }
 

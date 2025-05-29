@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <cmath>
 
 Data::Data(const char* filename)
 {
@@ -39,6 +40,11 @@ Data::Data(const char* filename)
         verr.push_back(read_double(ss));
         metallicity.push_back(read_double(ss));
     }
+
+    // Compute theta
+    theta.resize(x.size());
+    for(size_t i=0; i<x.size(); ++i)
+        theta[i] = atan2(y[i], x[i]);
 
     std::cout << "# Loaded " << x.size() << " data points from file ";
     std::cout << filename << "." << std::endl;
