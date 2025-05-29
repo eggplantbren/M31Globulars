@@ -4,10 +4,14 @@
 #include "DNest4/code/DNest4.h"
 #include <ostream>
 #include <vector>
+#include "Data.h"
 
 class MyModel
 {
     private:
+
+        // Dataset
+        static Data data;
 
         // Number of components
         static constexpr int num_components = 2;

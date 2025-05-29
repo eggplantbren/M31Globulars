@@ -1,6 +1,8 @@
 #include "MyModel.h"
 #include "DNest4/code/DNest4.h"
 
+Data MyModel::data("cher_data.csv");
+
 MyModel::MyModel()
 :A(num_components)
 ,phi(num_components)
