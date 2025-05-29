@@ -21,7 +21,7 @@ void MyModel::from_prior(DNest4::RNG& rng)
         sigma[i] = 1000.0*rng.rand();
     }
 
-    m_crit = -3.0 + 4.0*rng.rand();
+    m_crit = -3.0 + 2.0*rng.rand();
 
     for(double& n: ns)
         n = rng.randn();
@@ -50,8 +50,8 @@ double MyModel::perturb(DNest4::RNG& rng)
     }
     else if(which == 3)
     {
-        m_crit += 4.0*rng.randh();
-        DNest4::wrap(m_crit, -3.0, 1.0);
+        m_crit += 2.0*rng.randh();
+        DNest4::wrap(m_crit, -3.0, -1.0);
     }
     else
     {
