@@ -27,7 +27,8 @@ class MyModel
         static constexpr double sig_true_metallicities = 0.2;
 
         // Choose the appropriate component
-        int choose_component(double metallicity) const;
+        int choose_component(double true_metallicity,
+                             double reported_metallicity) const;
 
 
     public:

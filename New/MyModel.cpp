@@ -61,20 +61,21 @@ double MyModel::perturb(DNest4::RNG& rng)
     return logH;
 }
 
-int MyModel::choose_component(double metallicity) const
+int MyModel::choose_component(double true_metallicity,
+                              double reported_metallicity) const
 {
     // Model 1
     //    return 0;
 
     // Model 2.1
-    if(metallicity < 1000)
+    if(reported_metallicity < 1000)
     {
-        if(metallicity < m_crit)
+        if(true_metallicity < m_crit)
             return 0;
         else
             return 1;
     }
-    else if(metallicity == 1001)
+    else if(std::abs(reported_metallicity - 1001) <= 1E-6)
         return 0;
     else
         return 1;
@@ -102,7 +103,8 @@ double MyModel::log_likelihood() const
     {
         double true_metallicity = data.metallicity[i]
                                     + sig_true_metallicities*ns[i];
-        int component = choose_component(true_metallicity);
+        int component = choose_component(true_metallicity,
+                                         data.metallicity[i]);
         double mu = A[component]*sin(data.theta[i] - phi[component]);
         double var = pow(sigma[component], 2) + pow(data.verr[i], 2);
 
