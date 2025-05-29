@@ -82,17 +82,18 @@ int MyModel::choose_component(double true_metallicity,
 
 
     // Model 2.2
-//    if(metallicity < 1000)
+//    if(reported_metallicity < 1000)
 //    {
-//        if(metallicity < m_crit)
+//        if(true_metallicity < m_crit)
 //            return 0;
 //        else
 //            return 1;
 //    }
-//    else if(metallicity == 1001)
+//    else if(std::abs(reported_metallicity - 1001) <= 1E-6)
 //        return 1;
 //    else
 //        return 0;
+
 
 }
 
