@@ -7,6 +7,7 @@ MyModel::MyModel()
 :A(num_components)
 ,phi(num_components)
 ,sigma(num_components)
+,ns(data.x.size())
 {
 
 }
@@ -21,13 +22,16 @@ void MyModel::from_prior(DNest4::RNG& rng)
     }
 
     m_crit = -3.0 + 4.0*rng.rand();
+
+    for(double& n: ns)
+        n = rng.randn();
 }
 
 double MyModel::perturb(DNest4::RNG& rng)
 {
     double logH = 0.0;
 
-    int which = rng.rand_int(4);
+    int which = rng.rand_int(5);
     int k = rng.rand_int(num_components);
     if(which == 0)
     {
@@ -39,15 +43,19 @@ double MyModel::perturb(DNest4::RNG& rng)
         phi[k] += 2.0*M_PI*rng.randh();
         DNest4::wrap(phi[k], 0.0, 2.0*M_PI);
     }
-    else if(which == 3)
+    else if(which == 2)
     {
         sigma[k] += 1000.0*rng.randh();
         DNest4::wrap(sigma[k], 0.0, 1000.0);
     }
-    else
+    else if(which == 3)
     {
         m_crit += 4.0*rng.randh();
         DNest4::wrap(m_crit, -3.0, 1.0);
+    }
+    else
+    {
+        logH += DNest4::perturb_ns(ns, rng);
     }
 
     return logH;
@@ -70,12 +78,21 @@ int MyModel::choose_component(double metallicity) const
         return 0;
     else
         return 1;
-    
 
-//    if(metallicity > -1.0)
+
+    // Model 2.2
+//    if(metallicity < 1000)
+//    {
+//        if(metallicity < m_crit)
+//            return 0;
+//        else
+//            return 1;
+//    }
+//    else if(metallicity == 1001)
 //        return 1;
 //    else
 //        return 0;
+
 }
 
 double MyModel::log_likelihood() const
@@ -83,7 +100,9 @@ double MyModel::log_likelihood() const
     double logL = 0.0;
     for(size_t i=0; i<data.x.size(); ++i)
     {
-        int component = choose_component(data.metallicity[i]);
+        double true_metallicity = data.metallicity[i]
+                                    + sig_true_metallicities*ns[i];
+        int component = choose_component(true_metallicity);
         double mu = A[component]*sin(data.theta[i] - phi[component]);
         double var = pow(sigma[component], 2) + pow(data.verr[i], 2);
 
