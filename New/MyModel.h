@@ -19,6 +19,9 @@ class MyModel
         // Amplitude, orientation angle, and velocity dispersion per component
         std::vector<double> A, phi, sigma;
 
+        // Metallicity cut
+        double m_crit;
+
         // Choose the appropriate component
         int choose_component(double metallicity) const;
 

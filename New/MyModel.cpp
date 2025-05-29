@@ -19,13 +19,15 @@ void MyModel::from_prior(DNest4::RNG& rng)
         phi[i] = 2.0*M_PI*rng.rand();
         sigma[i] = 1000.0*rng.rand();
     }
+
+    m_crit = -3.0 + 4.0*rng.rand();
 }
 
 double MyModel::perturb(DNest4::RNG& rng)
 {
     double logH = 0.0;
 
-    int which = rng.rand_int(3);
+    int which = rng.rand_int(4);
     int k = rng.rand_int(num_components);
     if(which == 0)
     {
@@ -37,10 +39,15 @@ double MyModel::perturb(DNest4::RNG& rng)
         phi[k] += 2.0*M_PI*rng.randh();
         DNest4::wrap(phi[k], 0.0, 2.0*M_PI);
     }
-    else
+    else if(which == 3)
     {
         sigma[k] += 1000.0*rng.randh();
         DNest4::wrap(sigma[k], 0.0, 1000.0);
+    }
+    else
+    {
+        m_crit += 4.0*rng.randh();
+        DNest4::wrap(m_crit, -3.0, 1.0);
     }
 
     return logH;
@@ -48,10 +55,27 @@ double MyModel::perturb(DNest4::RNG& rng)
 
 int MyModel::choose_component(double metallicity) const
 {
-    if(metallicity > -1.0)
-        return 1;
-    else
+    // Model 1
+    //    return 0;
+
+    // Model 2.1
+    if(metallicity < 1000)
+    {
+        if(metallicity < m_crit)
+            return 0;
+        else
+            return 1;
+    }
+    else if(metallicity == 1001)
         return 0;
+    else
+        return 1;
+    
+
+//    if(metallicity > -1.0)
+//        return 1;
+//    else
+//        return 0;
 }
 
 double MyModel::log_likelihood() const
@@ -73,6 +97,7 @@ void MyModel::print(std::ostream& out) const
 {
     for(int i=0; i<num_components; ++i)
         out << A[i] << ' ' << phi[i] << ' ' << sigma[i] << ' ';
+    out << m_crit << ' ';
 }
 
 std::string MyModel::description() const
