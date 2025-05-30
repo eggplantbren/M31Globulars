@@ -5,7 +5,7 @@ import pandas as pd
 import os
 
 
-dn4.postprocess()
+dn4.postprocess(rng_seed=0)
 
 os.system("R CMD BATCH convert.R")
 
