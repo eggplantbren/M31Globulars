@@ -1,0 +1,9 @@
+With official errorbars on metallicities:
+
+
+Model      Threads+RNG Seed   log(Z)
+================================================
+Model 1:   -t 8 -s 0          -2141.093434764201
+Model 2.1: -t 8 -s 1          -2139.3959747763743
+Model 2.2: -t 8 -s 2          -2141.783750888554
+Model 3:   -t 8 -s 3          -2141.0306260352445
