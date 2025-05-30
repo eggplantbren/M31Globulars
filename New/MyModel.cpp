@@ -18,7 +18,7 @@ void MyModel::from_prior(DNest4::RNG& rng)
     for(int i=0; i<num_components; ++i)
     {
         A[i] = 1000.0*rng.rand();
-        phi[i] = 2.0*M_PI*rng.rand();
+        phi[i] = -M_PI + 2.0*M_PI*rng.rand();
         sigma[i] = 1000.0*rng.rand();
     }
 
@@ -42,7 +42,7 @@ double MyModel::perturb(DNest4::RNG& rng)
     else if(which == 1)
     {
         phi[k] += 2.0*M_PI*rng.randh();
-        DNest4::wrap(phi[k], 0.0, 2.0*M_PI);
+        DNest4::wrap(phi[k], -M_PI, M_PI);
     }
     else if(which == 2)
     {
