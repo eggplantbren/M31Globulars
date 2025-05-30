@@ -1,5 +1,6 @@
 #include "MyModel.h"
 #include "DNest4/code/DNest4.h"
+#include <iomanip>
 
 Data MyModel::data("cher_data.csv");
 
@@ -130,6 +131,7 @@ double MyModel::log_likelihood() const
 
 void MyModel::print(std::ostream& out) const
 {
+    out << std::setprecision(10);
     for(int i=0; i<num_components; ++i)
         out << A[i] << ' ' << phi[i] << ' ' << sigma[i] << ' ';
     out << m_crit << ' ';
