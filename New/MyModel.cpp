@@ -117,7 +117,7 @@ double MyModel::log_likelihood() const
     for(size_t i=0; i<data.x.size(); ++i)
     {
         double true_metallicity = data.metallicity[i]
-                                    + sig_true_metallicities*ns[i];
+                                    + data.metallicity_err[i]*ns[i];
         int component = choose_component(true_metallicity,
                                          data.metallicity[i]);
         double mu = A[component]*sin(data.theta[i] - phi[component]);

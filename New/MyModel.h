@@ -24,7 +24,6 @@ class MyModel
 
         // Standard normals for the true metallicities
         std::vector<double> ns;
-        static constexpr double sig_true_metallicities = 0.2;
 
         // Choose the appropriate component
         int choose_component(double true_metallicity,
