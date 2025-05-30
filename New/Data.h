@@ -6,8 +6,8 @@
 class Data
 {
     private:
-        std::vector<double> x, y, v, verr, metallicity;  
-        std::vector<double> theta;      
+        std::vector<double> x, y, v, verr, metallicity, metallicity_err;  
+        std::vector<double> theta;
 
     public:
         Data(const char* filename);

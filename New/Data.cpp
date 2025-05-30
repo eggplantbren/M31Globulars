@@ -36,6 +36,7 @@ Data::Data(const char* filename)
         v.push_back(read_double(ss));
         verr.push_back(read_double(ss));
         metallicity.push_back(read_double(ss));
+        metallicity_err.push_back(read_double(ss));
 
 //        std::cout << x.back() << ' ' << y.back() <<' ' << v.back() << ' ';
 //        std::cout << verr.back() << ' ' << metallicity.back() << std::endl;

@@ -2,7 +2,7 @@
 #include "DNest4/code/DNest4.h"
 #include <iomanip>
 
-Data MyModel::data("cher_data.csv");
+Data MyModel::data("cher_data_fe_h_err.csv");
 
 MyModel::MyModel()
 :A(num_components)
