@@ -17,7 +17,7 @@ class MyModel
         static constexpr int num_components = 2;
 
         // Amplitude, orientation angle, and velocity dispersion per component
-        std::vector<double> A, phi, sigma;
+        std::vector<double> A, phi, sigma, L;
 
         // Metallicity cut
         double m_crit;

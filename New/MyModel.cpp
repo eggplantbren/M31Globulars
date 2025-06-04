@@ -8,6 +8,7 @@ MyModel::MyModel()
 :A(num_components)
 ,phi(num_components)
 ,sigma(num_components)
+,L(num_components)
 ,ns(data.x.size())
 {
 
@@ -20,6 +21,7 @@ void MyModel::from_prior(DNest4::RNG& rng)
         A[i] = 1000.0*rng.rand();
         phi[i] = -M_PI + 2.0*M_PI*rng.rand();
         sigma[i] = 1000.0*rng.rand();
+        L[i] = exp(log(1E-1) + log(1E3)*rng.rand());
     }
 
     m_crit = -2.8 + 2.3*rng.rand();
@@ -32,7 +34,7 @@ double MyModel::perturb(DNest4::RNG& rng)
 {
     double logH = 0.0;
 
-    int which = rng.rand_int(5);
+    int which = rng.rand_int(6);
     int k = rng.rand_int(num_components);
     if(which == 0)
     {
@@ -50,6 +52,13 @@ double MyModel::perturb(DNest4::RNG& rng)
         DNest4::wrap(sigma[k], 0.0, 1000.0);
     }
     else if(which == 3)
+    {
+        L[k] = log(L[k]);
+        L[k] += log(1E3)*rng.randh();
+        DNest4::wrap(L[k], log(1E-1), log(100.0));
+        L[k] = exp(L[k]);
+    }
+    else if(which == 4)
     {
         m_crit += 2.3*rng.randh();
         DNest4::wrap(m_crit, -2.8, -0.5);
@@ -120,7 +129,18 @@ double MyModel::log_likelihood() const
                                     + data.metallicity_err[i]*ns[i];
         int component = choose_component(true_metallicity,
                                          data.metallicity[i]);
+
+        // V model
         double mu = A[component]*sin(data.theta[i] - phi[component]);
+
+        // S model
+//        double mu = A[component]*(data.x[i]*sin(phi[component]) -
+//                                  data.y[i]*cos(phi[component]));
+
+        // F model
+//        double mu = A[component]*tanh((data.x[i]*sin(phi[component]) -
+//                                       data.y[i]*cos(phi[component]))/L[component]);
+
         double var = pow(sigma[component], 2) + pow(data.verr[i], 2);
 
         logL += -0.5*log(2.0*M_PI*var) - 0.5*pow(data.v[i] - mu, 2)/var;
